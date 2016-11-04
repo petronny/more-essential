@@ -9,15 +9,15 @@ sed \
 	-e 's/\]//g' \
 	-e "s/[']//g" \
 	-e "s/, / /g" \
-	-e 's/^.*runner/\t/g' \
+	-e 's/^.*runner/\tcd build;/g' \
 	-e 's/-D__FILE_NAME__="\([^"]*\)"/-D__FILE_NAME__=\\"\1\\"/g' \
 	-e 's/arm-none-eabi-gcc/$(CC)/g' \
-	-e 's/ src/ build\/src/g' \
-	-e 's/\.\.\/src/src/g' \
-	-e 's/ basalt/ build\/basalt/g' \
-	-e 's/pebble-app\.map/build\/pebble-app.map/g' \
 	-i $MAKEFILE
 CC=arm-none-eabi-gcc make -f $MAKEFILE
 CC=arm-none-eabi-gcc ycm_generator -b make -M="-f $MAKEFILE" .
-sed '/D__FILE_NAME__/d' -i .ycm_extra_conf.py
+sed \
+	-e '/-D__FILE_NAME__/d' \
+	-e '/-DPBL_DISPLAY_WIDTH/d' \
+	-e '/-DPBL_DISPLAY_HEIGHT/d' \
+	-i .ycm_extra_conf.py
 rm $MAKEFILE
