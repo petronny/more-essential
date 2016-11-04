@@ -2,6 +2,24 @@
 
 static Window* s_main_window;
 static TextLayer* s_time_layer;
+static Layer* s_canvas_layer;
+
+static GDrawCommandImage* s_command_image;
+
+static void update_proc(Layer* layer, GContext* ctx) {
+	// Place image in the center of the Window
+	GSize img_size = gdraw_command_image_get_bounds_size(s_command_image);
+	GRect bounds = layer_get_bounds(layer);
+	const GEdgeInsets frame_insets = {
+		.top = (bounds.size.h - img_size.h) / 2,
+		.left = (bounds.size.w - img_size.w) / 2
+	};
+	// If the image was loaded successfully...
+	if(s_command_image) {
+		// Draw it
+		gdraw_command_image_draw(ctx, s_command_image, grect_inset(bounds, frame_insets).origin);
+	}
+}
 
 static void update_time() {
 	// Get a tm structure
@@ -23,12 +41,10 @@ static void main_window_load(Window* window) {
 	// Get information about the Window
 	Layer* window_layer = window_get_root_layer(window);
 	GRect bounds = layer_get_bounds(window_layer);
-
 	window_set_background_color(window, GColorVividCerulean);
-
 	// Create the TextLayer with specific bounds
 	s_time_layer = text_layer_create(
-	                   GRect(0, bounds.size.h/3, bounds.size.w, 50));
+	                   GRect(0, bounds.size.h/3, bounds.size.w, bounds.size.h/3));
 	// Improve the layout to be more like a watchface
 	text_layer_set_background_color(s_time_layer, GColorWhite);
 	text_layer_set_text_color(s_time_layer, GColorBlack);
@@ -37,6 +53,14 @@ static void main_window_load(Window* window) {
 	text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
 	// Add it as a child layer to the Window's root layer
 	layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
+	// Load the image and check it was succcessful
+	s_command_image = gdraw_command_image_create_with_resource(RESOURCE_ID_CALENDAR);
+	if(!s_command_image)
+		APP_LOG(APP_LOG_LEVEL_ERROR, "Image is NULL!");
+	// Create canvas Layer and set up the update procedure
+	s_canvas_layer = layer_create(GRect(0,0,bounds.size.w/2,bounds.size.h/6));
+	layer_set_update_proc(s_canvas_layer, update_proc);
+	layer_add_child(window_layer, s_canvas_layer);
 }
 
 static void main_window_unload(Window* window) {
