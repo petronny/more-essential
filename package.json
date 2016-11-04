@@ -1,12 +1,15 @@
 {
-	"name": "more_essential",
-	"author": "MakeAwesomeHappen",
+	"name": "more-essential",
+	"author": "Jingbei Li",
 	"version": "1.0.0",
 	"keywords": ["pebble-app"],
 	"private": true,
-	"dependencies": {},
+	"dependencies": {
+		"pebble-clay": "^1.0.1"
+	},
 	"pebble": {
-		"displayName": "more_essential",
+		"capabilities": ["configurable"],
+		"displayName": "More essential",
 		"uuid": "783b8425-3a64-4930-8e66-1507230fb447",
 		"sdkVersion": "3",
 		"enableMultiJS": true,
@@ -17,7 +20,10 @@
 			"watchface": true
 		},
 		"messageKeys": [
-			"dummy"
+			"BackgroundColor",
+			"ForegroundColor",
+			"SecondTick",
+			"Animations"
 		],
 		"resources": {
 			"media": [{

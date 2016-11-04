@@ -1,10 +1,51 @@
 #include <pebble.h>
+#include "configuration.h"
 
 static Window* s_main_window;
 static TextLayer* s_time_layer;
 static Layer* s_canvas_layer;
 
 static GDrawCommandImage* s_command_image;
+static ClaySettings settings;
+
+// Initialize the default settings
+static void prv_default_settings() {
+	settings.BackgroundColor = GColorBlack;
+	settings.ForegroundColor = GColorWhite;
+	settings.SecondTick = false;
+	settings.Animations = false;
+}
+
+// Read settings from persistent storage
+static void prv_load_settings() {
+	// Load the default settings
+	prv_default_settings();
+	// Read settings from persistent storage, if they exist
+	persist_read_data(SETTINGS_KEY, &settings, sizeof(settings));
+}
+
+// Save the settings to persistent storage
+static void prv_save_settings() {
+	persist_write_data(SETTINGS_KEY, &settings, sizeof(settings));
+}
+
+static void prv_inbox_received_handler(DictionaryIterator* iter, void* context) {
+	// Read color preferences
+	Tuple* bg_color_t = dict_find(iter, MESSAGE_KEY_BackgroundColor);
+	if(bg_color_t)
+		settings.BackgroundColor = GColorFromHEX(bg_color_t->value->int32);
+	Tuple* fg_color_t = dict_find(iter, MESSAGE_KEY_ForegroundColor);
+	if(fg_color_t)
+		settings.ForegroundColor = GColorFromHEX(fg_color_t->value->int32);
+	// Read boolean preferences
+	Tuple* second_tick_t = dict_find(iter, MESSAGE_KEY_SecondTick);
+	if(second_tick_t)
+		settings.SecondTick = second_tick_t->value->int32 == 1;
+	Tuple* animations_t = dict_find(iter, MESSAGE_KEY_Animations);
+	if(animations_t)
+		settings.Animations = animations_t->value->int32 == 1;
+	prv_save_settings();
+}
 
 static void update_proc(Layer* layer, GContext* ctx) {
 	// Place image in the center of the Window
@@ -66,10 +107,17 @@ static void main_window_load(Window* window) {
 static void main_window_unload(Window* window) {
 	// Destroy TextLayer
 	text_layer_destroy(s_time_layer);
+	// Destroy canvas Layer
+	layer_destroy(s_canvas_layer);
+	// Destroy the image
+	gdraw_command_image_destroy(s_command_image);
 }
 
 
 static void init() {
+	// Open AppMessage connection
+	app_message_register_inbox_received(prv_inbox_received_handler);
+	app_message_open(128, 128);
 	// Create main Window element and assign to pointer
 	s_main_window = window_create();
 	// Set handlers to manage the elements inside the Window
