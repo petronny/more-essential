@@ -32,7 +32,7 @@ static void clock_load() {
 	layer_add_child(window_layer, text_layer_get_layer(clock_text_layer));
 }
 
-static void clock_init(){
+static void clock_init() {
 	// Make sure the time is displayed from the start
 	clock_update();
 	// Register with TickTimerService
@@ -78,7 +78,7 @@ static void battery_load() {
 	}
 }
 
-static void batter_init(){
+static void battery_init() {
 	// Register for battery level updates
 	battery_state_service_subscribe(battery_callback);
 	// Ensure battery level is displayed from the start
@@ -165,12 +165,12 @@ static void init() {
 	// Set handlers to manage the elements inside the Window
 	window_set_window_handlers(main_window, (WindowHandlers) {
 		.load = main_window_load,
-		 .unload = main_window_unload
+		.unload = main_window_unload
 	});
 	// Show the Window on the watch, with animated=true
 	window_stack_push(main_window, true);
 	clock_init();
-	batter_init();
+	battery_init();
 }
 
 static void deinit() {
