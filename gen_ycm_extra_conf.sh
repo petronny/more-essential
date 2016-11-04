@@ -19,4 +19,5 @@ sed \
 	-i $MAKEFILE
 CC=arm-none-eabi-gcc make -f $MAKEFILE
 CC=arm-none-eabi-gcc ycm_generator -b make -M="-f $MAKEFILE" .
+sed '/D__FILE_NAME__/d' -i .ycm_extra_conf.py
 rm $MAKEFILE
