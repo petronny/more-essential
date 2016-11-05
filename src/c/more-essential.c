@@ -199,6 +199,91 @@ static void panel_destroy() {
 		layer_destroy(panel_layer[i]);
 }
 
+// Settings
+
+#define SETTINGS_KEY 1
+
+// A structure containing our settings
+typedef struct ClaySettings {
+	GColor BackgroundColor;
+	GColor ForegroundColor;
+	bool SecondTick;
+	bool Animations;
+} __attribute__((__packed__)) ClaySettings;
+
+// A struct for our specific settings (see main.h)
+ClaySettings settings;
+
+// Initialize the default settings
+static void prv_default_settings() {
+	settings.BackgroundColor = GColorBlack;
+	settings.ForegroundColor = GColorWhite;
+	settings.SecondTick = false;
+	settings.Animations = false;
+}
+
+// Read settings from persistent storage
+static void prv_load_settings() {
+	// Load the default settings
+	prv_default_settings();
+	// Read settings from persistent storage, if they exist
+	persist_read_data(SETTINGS_KEY, &settings, sizeof(settings));
+}
+
+// Save the settings to persistent storage
+static void prv_save_settings() {
+	persist_write_data(SETTINGS_KEY, &settings, sizeof(settings));
+	// Update the display based on new settings
+	//prv_update_display();
+}
+
+// Update the display elements
+//static void prv_update_display() {
+//	// Background color
+//	window_set_background_color(s_window, settings.BackgroundColor);
+//	// Foreground Color
+//	text_layer_set_text_color(s_label_secondtick, settings.ForegroundColor);
+//	text_layer_set_text_color(s_label_animations, settings.ForegroundColor);
+//	// Seconds
+//	if(settings.SecondTick)
+//		text_layer_set_text(s_label_secondtick, "seconds: enabled");
+//	else
+//		text_layer_set_text(s_label_secondtick, "seconds: disabled");
+//	// Animations
+//	if(settings.Animations)
+//		text_layer_set_text(s_label_animations, "animations: enabled");
+//	else
+//		text_layer_set_text(s_label_animations, "animations: disabled");
+//}
+
+// Handle the response from AppMessage
+static void prv_inbox_received_handler(DictionaryIterator* iter, void* context) {
+	// Background Color
+	Tuple* bg_color_t = dict_find(iter, MESSAGE_KEY_BackgroundColor);
+	if(bg_color_t)
+		settings.BackgroundColor = GColorFromHEX(bg_color_t->value->int32);
+	// Foreground Color
+	Tuple* fg_color_t = dict_find(iter, MESSAGE_KEY_ForegroundColor);
+	if(fg_color_t)
+		settings.ForegroundColor = GColorFromHEX(fg_color_t->value->int32);
+	// Second Tick
+	Tuple* second_tick_t = dict_find(iter, MESSAGE_KEY_SecondTick);
+	if(second_tick_t)
+		settings.SecondTick = second_tick_t->value->int32 == 1;
+	// Animations
+	Tuple* animations_t = dict_find(iter, MESSAGE_KEY_Animations);
+	if(animations_t)
+		settings.Animations = animations_t->value->int32 == 1;
+	// Save the new settings to persistent storage
+	prv_save_settings();
+}
+
+static void configuration_init() {
+	// Open AppMessage connection
+	app_message_register_inbox_received(prv_inbox_received_handler);
+	app_message_open(128, 128);
+}
+
 // Public
 static Window* main_window;
 
@@ -235,6 +320,7 @@ static void init() {
 	});
 	// Show the Window on the watch, with animated=true
 	window_stack_push(main_window, true);
+	configuration_init();
 	clock_init();
 	battery_init();
 	bluetooth_init();
