@@ -45,15 +45,14 @@ static void clock_destroy() {
 
 // Battery
 static int battery_level;
-static int battery_height=4;
-static Layer* battery_layer[2];
+static Layer* battery_layer;
+static int battery_layer_height=4;
 
 static void battery_callback(BatteryChargeState state) {
 	// Record the new battery level
 	battery_level = state.charge_percent;
 	// Update meter
-	for(int i=0; i<2; i++)
-		layer_mark_dirty(battery_layer[i]);
+	layer_mark_dirty(battery_layer);
 }
 
 static void battery_update(Layer* layer, GContext* ctx) {
@@ -61,21 +60,18 @@ static void battery_update(Layer* layer, GContext* ctx) {
 	// Find the width of the bar
 	int width = (int)(float)(((float)battery_level / 100.0F) * 114.0F);
 	// Draw the background
-	graphics_context_set_fill_color(ctx, GColorBlack);
+	graphics_context_set_fill_color(ctx, GColorClear);
 	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
 	// Draw the bar
-	graphics_context_set_fill_color(ctx, GColorWhite);
+	graphics_context_set_fill_color(ctx, GColorDarkGreen);
 	graphics_fill_rect(ctx, GRect(0, 0, width, bounds.size.h), 0, GCornerNone);
 }
 
 static void battery_load() {
 	// Create battery meter Layer
-	battery_layer [0] = layer_create(GRect(0,window_bounds.size.h/3,window_bounds.size.w, battery_height));
-	battery_layer [1] = layer_create(GRect(0,window_bounds.size.h/3*2-battery_height,window_bounds.size.w, battery_height));
-	for(int i=0; i<2; i++) {
-		layer_set_update_proc(battery_layer[i], battery_update);
-		layer_add_child(window_layer, battery_layer[i]);
-	}
+	battery_layer = layer_create(GRect(0,window_bounds.size.h/3*2-battery_layer_height,window_bounds.size.w, battery_layer_height));
+	layer_set_update_proc(battery_layer, battery_update);
+	layer_add_child(window_layer, battery_layer);
 }
 
 static void battery_init() {
@@ -86,8 +82,48 @@ static void battery_init() {
 }
 
 static void battery_destroy() {
-	for(int i=0; i<2; i++)
-		layer_destroy(battery_layer[i]);
+	layer_destroy(battery_layer);
+}
+
+// Bluetooth
+static Layer* bluetooth_layer;
+static int bluetooth_layer_height=4;
+static bool bluetooth_state;
+
+static void bluetooth_callback(bool connected) {
+	bluetooth_state=connected;
+	layer_mark_dirty(bluetooth_layer);
+	if(!connected) {
+		// Issue a vibrating alert
+		vibes_double_pulse();
+	}
+}
+
+static void bluetooth_update(Layer* layer, GContext* ctx){
+	GRect bounds = layer_get_bounds(layer);
+	if(bluetooth_state)
+		graphics_context_set_fill_color(ctx, GColorBlack);
+	else
+		graphics_context_set_fill_color(ctx, GColorClear);
+	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+}
+
+static void bluetooth_load(){
+	bluetooth_layer = layer_create(GRect(0,window_bounds.size.h/3,window_bounds.size.w, bluetooth_layer_height));
+	layer_set_update_proc(bluetooth_layer, bluetooth_update);
+	layer_add_child(window_layer, bluetooth_layer);
+}
+
+static void bluetooth_init() {
+	connection_service_subscribe((ConnectionHandlers) {
+		.pebble_app_connection_handler = bluetooth_callback
+	});
+	// Show the correct state of the BT connection from the start
+	bluetooth_callback(connection_service_peek_pebble_app_connection());
+}
+
+static void bluetooth_destroy() {
+	layer_destroy(bluetooth_layer);
 }
 
 // Icons
@@ -151,12 +187,14 @@ static void main_window_load(Window* window) {
 	clock_load();
 	icons_load();
 	battery_load();
+	bluetooth_load();
 }
 
 static void main_window_unload(Window* window) {
 	clock_destroy();
 	icons_destroy();
 	battery_destroy();
+	bluetooth_destroy();
 }
 
 static void init() {
@@ -171,6 +209,7 @@ static void init() {
 	window_stack_push(main_window, true);
 	clock_init();
 	battery_init();
+	bluetooth_init();
 }
 
 static void deinit() {
