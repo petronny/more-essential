@@ -176,12 +176,27 @@ static void icons_destroy() {
 
 // Panel
 
-static Layer * panel_layer[2];
+static Layer* panel_layer[2];
 
-static void panel_destroy(){
-	for(int i=0;i<2;i++){
-		layer_destroy(panel_layer[i]);
+static void panel_update(Layer* layer, GContext* ctx) {
+	GRect bounds = layer_get_bounds(layer);
+	graphics_context_set_fill_color(ctx, GColorDukeBlue);
+	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+}
+
+static void panel_load() {
+	panel_layer[0] = layer_create(GRect(0,0,window_bounds.size.w, window_bounds.size.h/3));
+	panel_layer[1] = layer_create(GRect(0,window_bounds.size.h/3*2,window_bounds.size.w, window_bounds.size.h/3));
+	for(int i=0; i<2; i++) {
+		layer_set_update_proc(panel_layer[i], panel_update);
+		layer_mark_dirty(panel_layer[i]);
+		layer_add_child(window_layer, panel_layer[i]);
 	}
+}
+
+static void panel_destroy() {
+	for(int i=0; i<2; i++)
+		layer_destroy(panel_layer[i]);
 }
 
 // Public
@@ -195,18 +210,19 @@ static void main_window_load(Window* window) {
 	// Get information about the Window
 	window_layer = window_get_root_layer(window);
 	window_bounds = layer_get_bounds(window_layer);
-	window_set_background_color(window, GColorDukeBlue);
 	clock_load();
-	icons_load();
 	battery_load();
 	bluetooth_load();
+	panel_load();
+	icons_load();
 }
 
 static void main_window_unload(Window* window) {
 	clock_destroy();
-	icons_destroy();
 	battery_destroy();
 	bluetooth_destroy();
+	panel_destroy();
+	icons_destroy();
 }
 
 static void init() {
