@@ -58,12 +58,16 @@ static void battery_callback(BatteryChargeState state) {
 static void battery_update(Layer* layer, GContext* ctx) {
 	GRect bounds = layer_get_bounds(layer);
 	// Find the width of the bar
-	int width = (int)(float)(((float)battery_level / 100.0F) * 114.0F);
+	int width = (int)(float)(((float)battery_level / 100.0F) * bounds.size.w);
 	// Draw the background
 	graphics_context_set_fill_color(ctx, GColorClear);
 	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
 	// Draw the bar
-	graphics_context_set_fill_color(ctx, GColorDarkGreen);
+	graphics_context_set_fill_color(ctx, GColorRed);
+	if(battery_level>=30)
+		graphics_context_set_fill_color(ctx, GColorOrange);
+	if(battery_level>=70)
+		graphics_context_set_fill_color(ctx, GColorDarkGreen);
 	graphics_fill_rect(ctx, GRect(0, 0, width, bounds.size.h), 0, GCornerNone);
 }
 
@@ -99,7 +103,7 @@ static void bluetooth_callback(bool connected) {
 	}
 }
 
-static void bluetooth_update(Layer* layer, GContext* ctx){
+static void bluetooth_update(Layer* layer, GContext* ctx) {
 	GRect bounds = layer_get_bounds(layer);
 	if(bluetooth_state)
 		graphics_context_set_fill_color(ctx, GColorBlack);
@@ -108,7 +112,7 @@ static void bluetooth_update(Layer* layer, GContext* ctx){
 	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
 }
 
-static void bluetooth_load(){
+static void bluetooth_load() {
 	bluetooth_layer = layer_create(GRect(0,window_bounds.size.h/3,window_bounds.size.w, bluetooth_layer_height));
 	layer_set_update_proc(bluetooth_layer, bluetooth_update);
 	layer_add_child(window_layer, bluetooth_layer);
@@ -203,7 +207,7 @@ static void init() {
 	// Set handlers to manage the elements inside the Window
 	window_set_window_handlers(main_window, (WindowHandlers) {
 		.load = main_window_load,
-		.unload = main_window_unload
+		 .unload = main_window_unload
 	});
 	// Show the Window on the watch, with animated=true
 	window_stack_push(main_window, true);
