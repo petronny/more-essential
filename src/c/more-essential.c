@@ -92,11 +92,11 @@ static void battery_destroy() {
 // Bluetooth
 static Layer* bluetooth_layer;
 static int bluetooth_layer_height=4;
-static bool bluetooth_state;
+//static bool bluetooth_state;
 
 static void bluetooth_callback(bool connected) {
-	bluetooth_state=connected;
-	layer_mark_dirty(bluetooth_layer);
+	//bluetooth_state=connected;
+	layer_set_hidden(bluetooth_layer, !connected);
 	if(!connected) {
 		// Issue a vibrating alert
 		vibes_double_pulse();
@@ -105,16 +105,14 @@ static void bluetooth_callback(bool connected) {
 
 static void bluetooth_update(Layer* layer, GContext* ctx) {
 	GRect bounds = layer_get_bounds(layer);
-	if(bluetooth_state)
-		graphics_context_set_fill_color(ctx, GColorBlack);
-	else
-		graphics_context_set_fill_color(ctx, GColorClear);
+	graphics_context_set_fill_color(ctx, GColorBlack);
 	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
 }
 
 static void bluetooth_load() {
 	bluetooth_layer = layer_create(GRect(0,window_bounds.size.h/3,window_bounds.size.w, bluetooth_layer_height));
 	layer_set_update_proc(bluetooth_layer, bluetooth_update);
+	layer_mark_dirty(bluetooth_layer);
 	layer_add_child(window_layer, bluetooth_layer);
 }
 
@@ -174,6 +172,16 @@ static void icons_destroy() {
 	layer_destroy(icon_canvas_layer);
 	// Destroy the image
 	gdraw_command_image_destroy(s_command_image);
+}
+
+// Panel
+
+static Layer * panel_layer[2];
+
+static void panel_destroy(){
+	for(int i=0;i<2;i++){
+		layer_destroy(panel_layer[i]);
+	}
 }
 
 // Public
