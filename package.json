@@ -1,12 +1,12 @@
 {
-	"name": "more_essential",
-	"author": "MakeAwesomeHappen",
+	"name": "More Essential",
+	"author": "Jingbei Li",
 	"version": "1.0.0",
 	"keywords": ["pebble-app"],
 	"private": true,
 	"dependencies": {},
 	"pebble": {
-		"displayName": "more_essential",
+		"displayName": "More Essential",
 		"uuid": "783b8425-3a64-4930-8e66-1507230fb447",
 		"sdkVersion": "3",
 		"enableMultiJS": true,
