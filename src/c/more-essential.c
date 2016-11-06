@@ -175,7 +175,6 @@ static void icons_destroy() {
 }
 
 // Panel
-
 static Layer* panel_layer[2];
 
 static void panel_update(Layer* layer, GContext* ctx) {
@@ -200,49 +199,40 @@ static void panel_destroy() {
 }
 
 // Settings
-
 #define SETTINGS_KEY 1
 
-// A structure containing our settings
 typedef struct ClaySettings {
-	GColor BackgroundColor;
-	GColor ForegroundColor;
-	bool SecondTick;
-	bool Animations;
+	GColor clock_background_color;
+	GColor clock_foreground_color;
+	bool bluetooth_vibrate;
+	bool clock_hourly_vibrate;
 } __attribute__((__packed__)) ClaySettings;
 
-// A struct for our specific settings (see main.h)
 ClaySettings settings;
 
+static void settings_default_settings() {
 // Initialize the default settings
-static void prv_default_settings() {
-	settings.BackgroundColor = GColorBlack;
-	settings.ForegroundColor = GColorWhite;
-	settings.SecondTick = false;
-	settings.Animations = false;
+	settings.clock_foreground_color = GColorBlack;
+	settings.clock_background_color = GColorWhite;
+	settings.bluetooth_vibrate = true;
+	settings.clock_hourly_vibrate = true;
 }
 
+static void settings_load_settings() {
 // Read settings from persistent storage
-static void prv_load_settings() {
 	// Load the default settings
-	prv_default_settings();
+	settings_default_settings();
 	// Read settings from persistent storage, if they exist
 	persist_read_data(SETTINGS_KEY, &settings, sizeof(settings));
 }
 
-// Save the settings to persistent storage
-static void prv_save_settings() {
-	persist_write_data(SETTINGS_KEY, &settings, sizeof(settings));
-	// Update the display based on new settings
-	//prv_update_display();
-}
-
+static void settings_update_display() {
 // Update the display elements
-//static void prv_update_display() {
+	text_layer_set_background_color(clock_text_layer, settings.clock_background_color);
+	text_layer_set_text_color(clock_text_layer, settings.clock_foreground_color);
 //	// Background color
 //	window_set_background_color(s_window, settings.BackgroundColor);
 //	// Foreground Color
-//	text_layer_set_text_color(s_label_secondtick, settings.ForegroundColor);
 //	text_layer_set_text_color(s_label_animations, settings.ForegroundColor);
 //	// Seconds
 //	if(settings.SecondTick)
@@ -254,34 +244,41 @@ static void prv_save_settings() {
 //		text_layer_set_text(s_label_animations, "animations: enabled");
 //	else
 //		text_layer_set_text(s_label_animations, "animations: disabled");
-//}
-
-// Handle the response from AppMessage
-static void prv_inbox_received_handler(DictionaryIterator* iter, void* context) {
-	// Background Color
-	Tuple* bg_color_t = dict_find(iter, MESSAGE_KEY_BackgroundColor);
-	if(bg_color_t)
-		settings.BackgroundColor = GColorFromHEX(bg_color_t->value->int32);
-	// Foreground Color
-	Tuple* fg_color_t = dict_find(iter, MESSAGE_KEY_ForegroundColor);
-	if(fg_color_t)
-		settings.ForegroundColor = GColorFromHEX(fg_color_t->value->int32);
-	// Second Tick
-	Tuple* second_tick_t = dict_find(iter, MESSAGE_KEY_SecondTick);
-	if(second_tick_t)
-		settings.SecondTick = second_tick_t->value->int32 == 1;
-	// Animations
-	Tuple* animations_t = dict_find(iter, MESSAGE_KEY_Animations);
-	if(animations_t)
-		settings.Animations = animations_t->value->int32 == 1;
-	// Save the new settings to persistent storage
-	prv_save_settings();
 }
 
-static void configuration_init() {
+static void settings_save_settings() {
+// Save the settings to persistent storage
+	persist_write_data(SETTINGS_KEY, &settings, sizeof(settings));
+	// Update the display based on new settings
+	settings_update_display();
+}
+
+static void settings_inbox_received_handler(DictionaryIterator* iter, void* context) {
+// Handle the response from AppMessage
+	// Background Color
+	Tuple* clock_background_color = dict_find(iter, MESSAGE_KEY_clock_background_color);
+	if(clock_background_color)
+		settings.clock_background_color = GColorFromHEX(clock_background_color->value->int32);
+	// Foreground Color
+	Tuple* clock_foreground_color = dict_find(iter, MESSAGE_KEY_clock_foreground_color);
+	if(clock_foreground_color)
+		settings.clock_foreground_color = GColorFromHEX(clock_foreground_color->value->int32);
+	// Second Tick
+	Tuple* bluetooth_vibrate = dict_find(iter, MESSAGE_KEY_bluetooth_vibrate);
+	if(bluetooth_vibrate)
+		settings.bluetooth_vibrate = bluetooth_vibrate->value->int32 == 1;
+	// Animations
+	Tuple* clock_hourly_vibrate = dict_find(iter, MESSAGE_KEY_clock_hourly_vibrate);
+	if(clock_hourly_vibrate)
+		settings.clock_hourly_vibrate = clock_hourly_vibrate->value->int32 == 1;
+	// Save the new settings to persistent storage
+	settings_save_settings();
+}
+
+static void settings_init() {
 	// Open AppMessage connection
-	app_message_register_inbox_received(prv_inbox_received_handler);
-	app_message_open(128, 128);
+	app_message_register_inbox_received(settings_inbox_received_handler);
+	app_message_open(256, 256);
 }
 
 // Public
@@ -320,7 +317,7 @@ static void init() {
 	});
 	// Show the Window on the watch, with animated=true
 	window_stack_push(main_window, true);
-	configuration_init();
+	settings_init();
 	clock_init();
 	battery_init();
 	bluetooth_init();

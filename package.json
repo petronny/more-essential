@@ -26,10 +26,28 @@
       "watchface": true
     },
     "messageKeys": [
-      "BackgroundColor",
-      "ForegroundColor",
-      "SecondTick",
-      "Animations"
+      "clock_background_color",
+      "clock_foreground_color",
+      "bluetooth_vibrate",
+      "clock_hourly_vibrate",
+      "battery_display",
+      "battery_color_high",
+      "battery_color_medium",
+      "battery_color_low",
+      "bluetooth_display",
+      "bluetooth_color",
+      "upper_panel_background_color",
+      "upper_panel_foreground_color",
+      "upper_panel_animations",
+      "upper_panel_pin_1",
+      "upper_panel_pin_2",
+      "upper_panel_pin_3",
+      "bottom_panel_background_color",
+      "bottom_panel_foreground_color",
+      "bottom_panel_animations",
+      "bottom_panel_pin_1",
+      "bottom_panel_pin_2",
+      "bottom_panel_pin_3"
     ],
     "resources": {
       "media": [
