@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "more-essential.h"
+#include "settings.h"
 
 // Window
 static Layer* window_layer;
@@ -23,8 +24,8 @@ static void clock_load() {
 	// Create the TextLayer with specific bounds
 	clock_text_layer = text_layer_create(GRect(0, window_bounds.size.h/3, window_bounds.size.w, window_bounds.size.h/3));
 	// Improve the layout to be more like a watchface
-	text_layer_set_background_color(clock_text_layer, GColorWhite);
-	text_layer_set_text_color(clock_text_layer, GColorBlack);
+	text_layer_set_background_color(clock_text_layer, settings.clock_background_color);
+	text_layer_set_text_color(clock_text_layer, settings.clock_foreground_color);
 	text_layer_set_text(clock_text_layer, "00:00");
 	text_layer_set_font(clock_text_layer, fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS));
 	text_layer_set_text_alignment(clock_text_layer, GTextAlignmentCenter);
@@ -63,11 +64,11 @@ static void battery_update(Layer* layer, GContext* ctx) {
 	graphics_context_set_fill_color(ctx, GColorClear);
 	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
 	// Draw the bar
-	graphics_context_set_fill_color(ctx, GColorRed);
+	graphics_context_set_fill_color(ctx, settings.battery_color_low);
 	if(battery_level>=30)
-		graphics_context_set_fill_color(ctx, GColorOrange);
+		graphics_context_set_fill_color(ctx, settings.battery_color_medium);
 	if(battery_level>=70)
-		graphics_context_set_fill_color(ctx, GColorDarkGreen);
+		graphics_context_set_fill_color(ctx, settings.battery_color_high);
 	graphics_fill_rect(ctx, GRect(0, 0, width, bounds.size.h), 0, GCornerNone);
 }
 
@@ -75,6 +76,7 @@ static void battery_load() {
 	// Create battery meter Layer
 	battery_layer = layer_create(GRect(0,window_bounds.size.h/3*2-battery_layer_height,window_bounds.size.w, battery_layer_height));
 	layer_set_update_proc(battery_layer, battery_update);
+	layer_set_hidden(battery_layer, !settings.battery_display);
 	layer_add_child(window_layer, battery_layer);
 }
 
@@ -96,8 +98,8 @@ static int bluetooth_layer_height=4;
 
 static void bluetooth_callback(bool connected) {
 	//bluetooth_state=connected;
-	layer_set_hidden(bluetooth_layer, !connected);
-	if(!connected) {
+	layer_set_hidden(bluetooth_layer, !connected || !settings.bluetooth_display);
+	if(!connected && settings.bluetooth_vibrate) {
 		// Issue a vibrating alert
 		vibes_double_pulse();
 	}
@@ -105,7 +107,7 @@ static void bluetooth_callback(bool connected) {
 
 static void bluetooth_update(Layer* layer, GContext* ctx) {
 	GRect bounds = layer_get_bounds(layer);
-	graphics_context_set_fill_color(ctx, GColorBlack);
+	graphics_context_set_fill_color(ctx, settings.bluetooth_color);
 	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
 }
 
@@ -113,6 +115,7 @@ static void bluetooth_load() {
 	bluetooth_layer = layer_create(GRect(0,window_bounds.size.h/3,window_bounds.size.w, bluetooth_layer_height));
 	layer_set_update_proc(bluetooth_layer, bluetooth_update);
 	layer_mark_dirty(bluetooth_layer);
+	layer_set_hidden(bluetooth_layer, !settings.bluetooth_display);
 	layer_add_child(window_layer, bluetooth_layer);
 }
 
@@ -177,19 +180,26 @@ static void icons_destroy() {
 // Panel
 static Layer* panel_layer[2];
 
-static void panel_update(Layer* layer, GContext* ctx) {
+static void upper_panel_update(Layer* layer, GContext* ctx) {
 	GRect bounds = layer_get_bounds(layer);
-	graphics_context_set_fill_color(ctx, GColorDukeBlue);
+	graphics_context_set_fill_color(ctx, settings.upper_panel_background_color);
+	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
+}
+
+static void bottom_panel_update(Layer* layer, GContext* ctx) {
+	GRect bounds = layer_get_bounds(layer);
+	graphics_context_set_fill_color(ctx, settings.bottom_panel_background_color);
 	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
 }
 
 static void panel_load() {
 	panel_layer[0] = layer_create(GRect(0,0,window_bounds.size.w, window_bounds.size.h/3));
 	panel_layer[1] = layer_create(GRect(0,window_bounds.size.h/3*2,window_bounds.size.w, window_bounds.size.h/3));
+	layer_set_update_proc(panel_layer[0], upper_panel_update);
+	layer_set_update_proc(panel_layer[1], bottom_panel_update);
 	for(int i=0; i<2; i++) {
-		layer_set_update_proc(panel_layer[i], panel_update);
-		layer_mark_dirty(panel_layer[i]);
 		layer_add_child(window_layer, panel_layer[i]);
+		layer_mark_dirty(panel_layer[i]);
 	}
 }
 
@@ -199,27 +209,27 @@ static void panel_destroy() {
 }
 
 // Settings
-#define SETTINGS_KEY 1
-
-typedef struct ClaySettings {
-	GColor clock_background_color;
-	GColor clock_foreground_color;
-	bool bluetooth_vibrate;
-	bool clock_hourly_vibrate;
-} __attribute__((__packed__)) ClaySettings;
-
-ClaySettings settings;
-
 static void settings_default_settings() {
-// Initialize the default settings
+	// Initialize the default settings
 	settings.clock_foreground_color = GColorBlack;
 	settings.clock_background_color = GColorWhite;
 	settings.bluetooth_vibrate = true;
 	settings.clock_hourly_vibrate = true;
+	settings.battery_display = true;
+	settings.battery_color_high = GColorDarkGreen;
+	settings.battery_color_medium = GColorOrange;
+	settings.battery_color_low = GColorRed;
+	settings.bluetooth_display = true;
+	settings.bluetooth_color = GColorBlack;
+	settings.upper_panel_background_color = GColorBlue;
+	settings.upper_panel_foreground_color = GColorWhite;
+	settings.upper_panel_animations = true;
+	settings.bottom_panel_background_color = GColorRed;
+	settings.bottom_panel_foreground_color = GColorCyan;
+	settings.bottom_panel_animations = true;
 }
 
 static void settings_load_settings() {
-// Read settings from persistent storage
 	// Load the default settings
 	settings_default_settings();
 	// Read settings from persistent storage, if they exist
@@ -227,55 +237,74 @@ static void settings_load_settings() {
 }
 
 static void settings_update_display() {
-// Update the display elements
+	// Update the display elements
 	text_layer_set_background_color(clock_text_layer, settings.clock_background_color);
 	text_layer_set_text_color(clock_text_layer, settings.clock_foreground_color);
-//	// Background color
-//	window_set_background_color(s_window, settings.BackgroundColor);
-//	// Foreground Color
-//	text_layer_set_text_color(s_label_animations, settings.ForegroundColor);
-//	// Seconds
-//	if(settings.SecondTick)
-//		text_layer_set_text(s_label_secondtick, "seconds: enabled");
-//	else
-//		text_layer_set_text(s_label_secondtick, "seconds: disabled");
-//	// Animations
-//	if(settings.Animations)
-//		text_layer_set_text(s_label_animations, "animations: enabled");
-//	else
-//		text_layer_set_text(s_label_animations, "animations: disabled");
+	layer_set_hidden(battery_layer, !settings.battery_display);
+	layer_mark_dirty(battery_layer);
+	layer_set_hidden(bluetooth_layer, !settings.bluetooth_display);
+	layer_mark_dirty(bluetooth_layer);
+	layer_mark_dirty(panel_layer[0]);
+	layer_mark_dirty(panel_layer[1]);
 }
 
 static void settings_save_settings() {
-// Save the settings to persistent storage
+	// Save the settings to persistent storage
 	persist_write_data(SETTINGS_KEY, &settings, sizeof(settings));
 	// Update the display based on new settings
 	settings_update_display();
 }
 
 static void settings_inbox_received_handler(DictionaryIterator* iter, void* context) {
-// Handle the response from AppMessage
-	// Background Color
+	// Handle the response from AppMessage
 	Tuple* clock_background_color = dict_find(iter, MESSAGE_KEY_clock_background_color);
 	if(clock_background_color)
 		settings.clock_background_color = GColorFromHEX(clock_background_color->value->int32);
-	// Foreground Color
 	Tuple* clock_foreground_color = dict_find(iter, MESSAGE_KEY_clock_foreground_color);
 	if(clock_foreground_color)
 		settings.clock_foreground_color = GColorFromHEX(clock_foreground_color->value->int32);
-	// Second Tick
 	Tuple* bluetooth_vibrate = dict_find(iter, MESSAGE_KEY_bluetooth_vibrate);
 	if(bluetooth_vibrate)
 		settings.bluetooth_vibrate = bluetooth_vibrate->value->int32 == 1;
-	// Animations
 	Tuple* clock_hourly_vibrate = dict_find(iter, MESSAGE_KEY_clock_hourly_vibrate);
 	if(clock_hourly_vibrate)
 		settings.clock_hourly_vibrate = clock_hourly_vibrate->value->int32 == 1;
+	Tuple* battery_display = dict_find(iter, MESSAGE_KEY_battery_display);
+	if(battery_display)
+		settings.battery_display = battery_display->value->int32 == 1;
+	Tuple* battery_color_high = dict_find(iter, MESSAGE_KEY_battery_color_high);
+	if(battery_color_high)
+		settings.battery_color_high = GColorFromHEX(battery_color_high->value->int32);
+	Tuple* battery_color_medium = dict_find(iter, MESSAGE_KEY_battery_color_medium);
+	if(battery_color_medium)
+		settings.battery_color_medium = GColorFromHEX(battery_color_medium->value->int32);
+	Tuple* battery_color_low = dict_find(iter, MESSAGE_KEY_battery_color_low);
+	if(battery_color_low)
+		settings.battery_color_low = GColorFromHEX(battery_color_low->value->int32);
+	Tuple* bluetooth_display = dict_find(iter, MESSAGE_KEY_bluetooth_display);
+	if(bluetooth_display)
+		settings.bluetooth_display = bluetooth_display->value->int32 == 1;
+	Tuple* bluetooth_color = dict_find(iter, MESSAGE_KEY_bluetooth_color);
+	if(bluetooth_color)
+		settings.bluetooth_color = GColorFromHEX(bluetooth_color->value->int32);
+	Tuple* upper_panel_background_color = dict_find(iter, MESSAGE_KEY_upper_panel_background_color);
+	if(upper_panel_background_color)
+		settings.upper_panel_background_color = GColorFromHEX(upper_panel_background_color->value->int32);
+	Tuple* upper_panel_foreground_color = dict_find(iter, MESSAGE_KEY_upper_panel_foreground_color);
+	if(upper_panel_foreground_color)
+		settings.upper_panel_foreground_color = GColorFromHEX(upper_panel_foreground_color->value->int32);
+	Tuple* bottom_panel_background_color = dict_find(iter, MESSAGE_KEY_bottom_panel_background_color);
+	if(bottom_panel_background_color)
+		settings.bottom_panel_background_color = GColorFromHEX(bottom_panel_background_color->value->int32);
+	Tuple* bottom_panel_foreground_color = dict_find(iter, MESSAGE_KEY_bottom_panel_foreground_color);
+	if(bottom_panel_foreground_color)
+		settings.bottom_panel_foreground_color = GColorFromHEX(bottom_panel_foreground_color->value->int32);
 	// Save the new settings to persistent storage
 	settings_save_settings();
 }
 
 static void settings_init() {
+	settings_load_settings();
 	// Open AppMessage connection
 	app_message_register_inbox_received(settings_inbox_received_handler);
 	app_message_open(256, 256);
@@ -296,7 +325,7 @@ static void main_window_load(Window* window) {
 	battery_load();
 	bluetooth_load();
 	panel_load();
-	icons_load();
+//	icons_load();
 }
 
 static void main_window_unload(Window* window) {
@@ -304,10 +333,11 @@ static void main_window_unload(Window* window) {
 	battery_destroy();
 	bluetooth_destroy();
 	panel_destroy();
-	icons_destroy();
+//	icons_destroy();
 }
 
 static void init() {
+	settings_init();
 	// Create main Window element and assign to pointer
 	main_window = window_create();
 	// Set handlers to manage the elements inside the Window
@@ -317,7 +347,6 @@ static void init() {
 	});
 	// Show the Window on the watch, with animated=true
 	window_stack_push(main_window, true);
-	settings_init();
 	clock_init();
 	battery_init();
 	bluetooth_init();
