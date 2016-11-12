@@ -29,10 +29,11 @@ typedef struct ClaySettings {
 	int bottom_panel_pin_3;
 } ClaySettings;
 
-static ClaySettings settings;
+ClaySettings settings;
 
 void settings_theme_default();
 void settings_theme_france();
 void settings_theme_german();
 void settings_theme_italy();
 void settings_theme_russia();
+void settings_default_settings();

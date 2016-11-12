@@ -1,51 +1,7 @@
 #include <pebble.h>
 #include "settings.h"
-
-// Window
-static Layer* window_layer;
-static GRect window_bounds;
-
-// Clock
-static TextLayer* clock_text_layer;
-
-static void clock_update() {
-	// Get a tm structure
-	time_t temp = time(NULL);
-	struct tm* tick_time = localtime(&temp);
-	// Write the current hours and minutes into a buffer
-	static char s_buffer[8];
-	strftime(s_buffer, sizeof(s_buffer), clock_is_24h_style() ? "%H:%M" : "%I:%M", tick_time);
-	// Display this time on the TextLayer
-	text_layer_set_text(clock_text_layer, s_buffer);
-}
-
-static void clock_load() {
-	// Create the TextLayer with specific bounds
-	clock_text_layer = text_layer_create(GRect(0, window_bounds.size.h/3, window_bounds.size.w, window_bounds.size.h/3));
-	// Improve the layout to be more like a watchface
-	text_layer_set_background_color(clock_text_layer, settings.clock_background_color);
-	text_layer_set_text_color(clock_text_layer, settings.clock_foreground_color);
-	text_layer_set_text(clock_text_layer, "00:00");
-	text_layer_set_font(clock_text_layer, fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS));
-	text_layer_set_text_alignment(clock_text_layer, GTextAlignmentCenter);
-	// Add it as a child layer to the Window's root layer
-	layer_add_child(window_layer, text_layer_get_layer(clock_text_layer));
-}
-
-static void clock_tick_handler(struct tm* tick_time, TimeUnits units_changed) {
-	clock_update();
-}
-
-static void clock_init() {
-	// Make sure the time is displayed from the start
-	clock_update();
-	// Register with TickTimerService
-	tick_timer_service_subscribe(MINUTE_UNIT, clock_tick_handler);
-}
-
-static void clock_destroy() {
-	text_layer_destroy(clock_text_layer);
-}
+#include "window.h"
+#include "clock.h"
 
 // Battery
 static int battery_level;
@@ -214,18 +170,6 @@ static void panel_destroy() {
 
 // Settings
 
-void settings_default_settings() {
-	// Initialize the default settings
-	settings.theme = 0;
-	settings.bluetooth_vibrate = true;
-	settings.clock_hourly_vibrate = true;
-	settings.battery_display = true;
-	settings.bluetooth_display = true;
-	settings.upper_panel_animations = true;
-	settings.bottom_panel_animations = true;
-	settings_theme_default();
-}
-
 static void settings_load_settings() {
 	// Load the default settings
 	settings_default_settings();
@@ -333,6 +277,7 @@ static Window* main_window;
 static void main_window_load(Window* window) {
 	// Get information about the Window
 	window_layer = window_get_root_layer(window);
+	APP_LOG(APP_LOG_LEVEL_DEBUG,"window layer:%d", (int)window_layer);
 	window_bounds = layer_get_bounds(window_layer);
 	clock_load();
 	battery_load();

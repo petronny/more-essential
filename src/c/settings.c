@@ -64,3 +64,15 @@ void settings_theme_russia() {
 	settings.bottom_panel_background_color = GColorRed;
 	settings.bottom_panel_foreground_color = GColorCyan;
 }
+
+void settings_default_settings() {
+	// Initialize the default settings
+	settings.theme = 0;
+	settings.bluetooth_vibrate = true;
+	settings.clock_hourly_vibrate = true;
+	settings.battery_display = true;
+	settings.bluetooth_display = true;
+	settings.upper_panel_animations = true;
+	settings.bottom_panel_animations = true;
+	settings_theme_default();
+}
