@@ -73,7 +73,13 @@ void settings_default_settings() {
 	settings.battery_display = true;
 	settings.bluetooth_display = true;
 	settings.upper_panel_animations = true;
+	settings.upper_panel_pin_1 = 0;
+	settings.upper_panel_pin_2 = 0;
+	settings.upper_panel_pin_3 = 0;
 	settings.bottom_panel_animations = true;
+	settings.bottom_panel_pin_1 = 0;
+	settings.bottom_panel_pin_2 = 0;
+	settings.bottom_panel_pin_3 = 0;
 	settings_theme_default();
 }
 
@@ -92,8 +98,8 @@ void settings_update_display() {
 	layer_mark_dirty(battery_layer);
 	layer_set_hidden(bluetooth_layer, !settings.bluetooth_display);
 	layer_mark_dirty(bluetooth_layer);
-	layer_mark_dirty(panel_layer[0]);
-	layer_mark_dirty(panel_layer[1]);
+	layer_mark_dirty(upper_panel_layer);
+	layer_mark_dirty(bottom_panel_layer);
 }
 
 void settings_save_settings() {
@@ -141,12 +147,30 @@ void settings_inbox_received_handler(DictionaryIterator* iter, void* context) {
 	Tuple* upper_panel_foreground_color = dict_find(iter, MESSAGE_KEY_upper_panel_foreground_color);
 	if(upper_panel_foreground_color)
 		settings.upper_panel_foreground_color = GColorFromHEX(upper_panel_foreground_color->value->int32);
+	Tuple* upper_panel_pin_1 = dict_find(iter, MESSAGE_KEY_upper_panel_pin_1);
+	if(upper_panel_pin_1)
+		settings.upper_panel_pin_1 = atoi(upper_panel_pin_1->value->cstring);
+	Tuple* upper_panel_pin_2 = dict_find(iter, MESSAGE_KEY_upper_panel_pin_2);
+	if(upper_panel_pin_2)
+		settings.upper_panel_pin_2 = atoi(upper_panel_pin_2->value->cstring);
+	Tuple* upper_panel_pin_3 = dict_find(iter, MESSAGE_KEY_upper_panel_pin_3);
+	if(upper_panel_pin_3)
+		settings.upper_panel_pin_3 = atoi(upper_panel_pin_3->value->cstring);
 	Tuple* bottom_panel_background_color = dict_find(iter, MESSAGE_KEY_bottom_panel_background_color);
 	if(bottom_panel_background_color)
 		settings.bottom_panel_background_color = GColorFromHEX(bottom_panel_background_color->value->int32);
 	Tuple* bottom_panel_foreground_color = dict_find(iter, MESSAGE_KEY_bottom_panel_foreground_color);
 	if(bottom_panel_foreground_color)
 		settings.bottom_panel_foreground_color = GColorFromHEX(bottom_panel_foreground_color->value->int32);
+	Tuple* bottom_panel_pin_1 = dict_find(iter, MESSAGE_KEY_bottom_panel_pin_1);
+	if(bottom_panel_pin_1)
+		settings.bottom_panel_pin_1 = atoi(bottom_panel_pin_1->value->cstring);
+	Tuple* bottom_panel_pin_2 = dict_find(iter, MESSAGE_KEY_bottom_panel_pin_2);
+	if(bottom_panel_pin_2)
+		settings.bottom_panel_pin_2 = atoi(bottom_panel_pin_2->value->cstring);
+	Tuple* bottom_panel_pin_3 = dict_find(iter, MESSAGE_KEY_bottom_panel_pin_3);
+	if(bottom_panel_pin_3)
+		settings.bottom_panel_pin_3 = atoi(bottom_panel_pin_3->value->cstring);
 	Tuple* theme = dict_find(iter, MESSAGE_KEY_theme);
 	if(theme)
 		settings.theme = atoi(theme->value->cstring);

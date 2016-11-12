@@ -134,56 +134,56 @@ module.exports = [{
 	}, {
 		"type": "select",
 		"messageKey": "upper_panel_pin_1",
-		"defaultValue": "none",
+		"defaultValue": "0",
 		"label": "Pin #1",
 		"options": [{
 			"label": "None",
-			"value": "none"
+			"value": "0"
 		}, {
 			"label": "Berry",
-			"value": "berry"
+			"value": "1"
 		}, {
 			"label": "Grape",
-			"value": "grape"
+			"value": "2"
 		}, {
 			"label": "Banana",
-			"value": "banana"
+			"value": "3"
 		}]
 	}, {
 		"type": "select",
 		"messageKey": "upper_panel_pin_2",
-		"defaultValue": "none",
+		"defaultValue": "0",
 		"label": "Pin #2",
 		"options": [{
 			"label": "None",
-			"value": "none"
+			"value": "0"
 		}, {
 			"label": "Berry",
-			"value": "berry"
+			"value": "1"
 		}, {
 			"label": "Grape",
-			"value": "grape"
+			"value": "2"
 		}, {
 			"label": "Banana",
-			"value": "banana"
+			"value": "3"
 		}]
 	}, {
 		"type": "select",
 		"messageKey": "upper_panel_pin_3",
-		"defaultValue": "none",
+		"defaultValue": "0",
 		"label": "Pin #3",
 		"options": [{
 			"label": "None",
-			"value": "none"
+			"value": "0"
 		}, {
 			"label": "Berry",
-			"value": "berry"
+			"value": "1"
 		}, {
 			"label": "Grape",
-			"value": "grape"
+			"value": "2"
 		}, {
 			"label": "Banana",
-			"value": "banana"
+			"value": "3"
 		}]
 	}]
 }, {
@@ -219,52 +219,52 @@ module.exports = [{
 		"label": "Pin #1",
 		"options": [{
 			"label": "None",
-			"value": "none"
+			"value": "0"
 		}, {
 			"label": "Berry",
-			"value": "berry"
+			"value": "1"
 		}, {
 			"label": "Grape",
-			"value": "grape"
+			"value": "2"
 		}, {
 			"label": "Banana",
-			"value": "banana"
+			"value": "3"
 		}]
 	}, {
 		"type": "select",
 		"messageKey": "bottom_panel_pin_2",
-		"defaultValue": "none",
+		"defaultValue": "0",
 		"label": "Pin #2",
 		"options": [{
 			"label": "None",
-			"value": "none"
+			"value": "0"
 		}, {
 			"label": "Berry",
-			"value": "berry"
+			"value": "1"
 		}, {
 			"label": "Grape",
-			"value": "grape"
+			"value": "2"
 		}, {
 			"label": "Banana",
-			"value": "banana"
+			"value": "3"
 		}]
 	}, {
 		"type": "select",
 		"messageKey": "bottom_panel_pin_3",
-		"defaultValue": "none",
+		"defaultValue": "0",
 		"label": "Pin #3",
 		"options": [{
 			"label": "None",
-			"value": "none"
+			"value": "0"
 		}, {
 			"label": "Berry",
-			"value": "berry"
+			"value": "1"
 		}, {
 			"label": "Grape",
-			"value": "grape"
+			"value": "2"
 		}, {
 			"label": "Banana",
-			"value": "banana"
+			"value": "3"
 		}]
 	}]
 }, {
