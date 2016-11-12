@@ -4,6 +4,7 @@
 #include "battery.h"
 #include "bluetooth.h"
 #include "panel.h"
+#include "pin.h"
 
 #define SETTINGS_KEY 1
 
@@ -19,18 +20,9 @@ typedef struct ClaySettings {
 	GColor battery_color_low;
 	bool bluetooth_display;
 	GColor bluetooth_color;
-	GColor upper_panel_background_color;
-	GColor upper_panel_foreground_color;
-	bool upper_panel_animations;
-	int upper_panel_pin_1;
-	int upper_panel_pin_2;
-	int upper_panel_pin_3;
-	GColor bottom_panel_background_color;
-	GColor bottom_panel_foreground_color;
-	bool bottom_panel_animations;
-	int bottom_panel_pin_1;
-	int bottom_panel_pin_2;
-	int bottom_panel_pin_3;
+	GColor panel_background_color[2];
+	GColor panel_foreground_color[2];
+	int pin[6];
 } ClaySettings;
 
 ClaySettings settings;

@@ -5,6 +5,7 @@
 #include "battery.h"
 #include "bluetooth.h"
 #include "panel.h"
+#include "pin.h"
 
 static void main_window_load(Window* window) {
 	// Get information about the Window
@@ -14,7 +15,7 @@ static void main_window_load(Window* window) {
 	battery_load();
 	bluetooth_load();
 	panel_load();
-//	pins_load();
+	pins_load();
 }
 
 static void main_window_unload(Window* window) {
@@ -22,7 +23,7 @@ static void main_window_unload(Window* window) {
 	battery_destroy();
 	bluetooth_destroy();
 	panel_destroy();
-//	pins_destroy();
+	pin_destroy();
 }
 
 static void init() {

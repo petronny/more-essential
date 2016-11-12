@@ -7,10 +7,10 @@ void settings_theme_default() {
 	settings.battery_color_medium = GColorOrange;
 	settings.battery_color_low = GColorRed;
 	settings.bluetooth_color = GColorBlack;
-	settings.upper_panel_background_color = GColorBlue;
-	settings.upper_panel_foreground_color = GColorWhite;
-	settings.bottom_panel_background_color = GColorBlue;
-	settings.bottom_panel_foreground_color = GColorWhite;
+	settings.panel_background_color[0] = GColorBlue;
+	settings.panel_foreground_color[0] = GColorWhite;
+	settings.panel_background_color[1] = GColorBlue;
+	settings.panel_foreground_color[1] = GColorWhite;
 }
 
 void settings_theme_france() {
@@ -20,10 +20,10 @@ void settings_theme_france() {
 	settings.battery_color_medium = GColorOrange;
 	settings.battery_color_low = GColorRed;
 	settings.bluetooth_color = GColorBlack;
-	settings.upper_panel_background_color = GColorBlue;
-	settings.upper_panel_foreground_color = GColorWhite;
-	settings.bottom_panel_background_color = GColorRed;
-	settings.bottom_panel_foreground_color = GColorCyan;
+	settings.panel_background_color[0] = GColorBlue;
+	settings.panel_foreground_color[0] = GColorWhite;
+	settings.panel_background_color[1] = GColorRed;
+	settings.panel_foreground_color[1] = GColorCyan;
 }
 
 void settings_theme_german() {
@@ -33,10 +33,10 @@ void settings_theme_german() {
 	settings.battery_color_medium = GColorOrange;
 	settings.battery_color_low = GColorRed;
 	settings.bluetooth_color = GColorBlack;
-	settings.upper_panel_background_color = GColorBlack;
-	settings.upper_panel_foreground_color = GColorWhite;
-	settings.bottom_panel_background_color = GColorFromHEX(0xFFAA00);
-	settings.bottom_panel_foreground_color = GColorFromHEX(0x0055FF);
+	settings.panel_background_color[0] = GColorBlack;
+	settings.panel_foreground_color[0] = GColorWhite;
+	settings.panel_background_color[1] = GColorFromHEX(0xFFAA00);
+	settings.panel_foreground_color[1] = GColorFromHEX(0x0055FF);
 }
 
 void settings_theme_italy() {
@@ -46,10 +46,10 @@ void settings_theme_italy() {
 	settings.battery_color_medium = GColorOrange;
 	settings.battery_color_low = GColorRed;
 	settings.bluetooth_color = GColorBlack;
-	settings.upper_panel_background_color = GColorFromHEX(0x00AA00);
-	settings.upper_panel_foreground_color = GColorFromHEX(0xFF55FF);
-	settings.bottom_panel_background_color = GColorRed;
-	settings.bottom_panel_foreground_color = GColorCyan;
+	settings.panel_background_color[0] = GColorFromHEX(0x00AA00);
+	settings.panel_foreground_color[0] = GColorFromHEX(0xFF55FF);
+	settings.panel_background_color[1] = GColorRed;
+	settings.panel_foreground_color[1] = GColorCyan;
 }
 
 void settings_theme_russia() {
@@ -59,10 +59,10 @@ void settings_theme_russia() {
 	settings.battery_color_medium = GColorOrange;
 	settings.battery_color_low = GColorRed;
 	settings.bluetooth_color = GColorBlack;
-	settings.upper_panel_background_color = GColorWhite;
-	settings.upper_panel_foreground_color = GColorBlack;
-	settings.bottom_panel_background_color = GColorRed;
-	settings.bottom_panel_foreground_color = GColorCyan;
+	settings.panel_background_color[0] = GColorWhite;
+	settings.panel_foreground_color[0] = GColorBlack;
+	settings.panel_background_color[1] = GColorRed;
+	settings.panel_foreground_color[1] = GColorCyan;
 }
 
 void settings_default_settings() {
@@ -72,14 +72,8 @@ void settings_default_settings() {
 	settings.clock_hourly_vibrate = true;
 	settings.battery_display = true;
 	settings.bluetooth_display = true;
-	settings.upper_panel_animations = true;
-	settings.upper_panel_pin_1 = 0;
-	settings.upper_panel_pin_2 = 0;
-	settings.upper_panel_pin_3 = 0;
-	settings.bottom_panel_animations = true;
-	settings.bottom_panel_pin_1 = 0;
-	settings.bottom_panel_pin_2 = 0;
-	settings.bottom_panel_pin_3 = 0;
+	for(int i=0;i<6;i++)
+		settings.pin[i] = 0;
 	settings_theme_default();
 }
 
@@ -100,6 +94,7 @@ void settings_update_display() {
 	layer_mark_dirty(bluetooth_layer);
 	for(int i=0;i<2;i++)
 		layer_mark_dirty(panel_layer[i]);
+	pins_load();
 }
 
 void settings_save_settings() {
@@ -143,34 +138,34 @@ void settings_inbox_received_handler(DictionaryIterator* iter, void* context) {
 		settings.bluetooth_color = GColorFromHEX(bluetooth_color->value->int32);
 	Tuple* upper_panel_background_color = dict_find(iter, MESSAGE_KEY_upper_panel_background_color);
 	if(upper_panel_background_color)
-		settings.upper_panel_background_color = GColorFromHEX(upper_panel_background_color->value->int32);
+		settings.panel_background_color[0] = GColorFromHEX(upper_panel_background_color->value->int32);
 	Tuple* upper_panel_foreground_color = dict_find(iter, MESSAGE_KEY_upper_panel_foreground_color);
 	if(upper_panel_foreground_color)
-		settings.upper_panel_foreground_color = GColorFromHEX(upper_panel_foreground_color->value->int32);
+		settings.panel_foreground_color[0] = GColorFromHEX(upper_panel_foreground_color->value->int32);
 	Tuple* upper_panel_pin_1 = dict_find(iter, MESSAGE_KEY_upper_panel_pin_1);
 	if(upper_panel_pin_1)
-		settings.upper_panel_pin_1 = atoi(upper_panel_pin_1->value->cstring);
+		settings.pin[0] = atoi(upper_panel_pin_1->value->cstring);
 	Tuple* upper_panel_pin_2 = dict_find(iter, MESSAGE_KEY_upper_panel_pin_2);
 	if(upper_panel_pin_2)
-		settings.upper_panel_pin_2 = atoi(upper_panel_pin_2->value->cstring);
+		settings.pin[1] = atoi(upper_panel_pin_2->value->cstring);
 	Tuple* upper_panel_pin_3 = dict_find(iter, MESSAGE_KEY_upper_panel_pin_3);
 	if(upper_panel_pin_3)
-		settings.upper_panel_pin_3 = atoi(upper_panel_pin_3->value->cstring);
+		settings.pin[2] = atoi(upper_panel_pin_3->value->cstring);
 	Tuple* bottom_panel_background_color = dict_find(iter, MESSAGE_KEY_bottom_panel_background_color);
 	if(bottom_panel_background_color)
-		settings.bottom_panel_background_color = GColorFromHEX(bottom_panel_background_color->value->int32);
+		settings.panel_background_color[1] = GColorFromHEX(bottom_panel_background_color->value->int32);
 	Tuple* bottom_panel_foreground_color = dict_find(iter, MESSAGE_KEY_bottom_panel_foreground_color);
 	if(bottom_panel_foreground_color)
-		settings.bottom_panel_foreground_color = GColorFromHEX(bottom_panel_foreground_color->value->int32);
+		settings.panel_foreground_color[1] = GColorFromHEX(bottom_panel_foreground_color->value->int32);
 	Tuple* bottom_panel_pin_1 = dict_find(iter, MESSAGE_KEY_bottom_panel_pin_1);
 	if(bottom_panel_pin_1)
-		settings.bottom_panel_pin_1 = atoi(bottom_panel_pin_1->value->cstring);
+		settings.pin[3] = atoi(bottom_panel_pin_1->value->cstring);
 	Tuple* bottom_panel_pin_2 = dict_find(iter, MESSAGE_KEY_bottom_panel_pin_2);
 	if(bottom_panel_pin_2)
-		settings.bottom_panel_pin_2 = atoi(bottom_panel_pin_2->value->cstring);
+		settings.pin[4] = atoi(bottom_panel_pin_2->value->cstring);
 	Tuple* bottom_panel_pin_3 = dict_find(iter, MESSAGE_KEY_bottom_panel_pin_3);
 	if(bottom_panel_pin_3)
-		settings.bottom_panel_pin_3 = atoi(bottom_panel_pin_3->value->cstring);
+		settings.pin[5] = atoi(bottom_panel_pin_3->value->cstring);
 	Tuple* theme = dict_find(iter, MESSAGE_KEY_theme);
 	if(theme)
 		settings.theme = atoi(theme->value->cstring);

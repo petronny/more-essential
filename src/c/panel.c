@@ -4,13 +4,13 @@ LayerUpdateProc panel_layer_update[2]={upper_panel_update,bottom_panel_update};
 
 void upper_panel_update(Layer* layer, GContext* ctx) {
 	GRect bounds = layer_get_bounds(layer);
-	graphics_context_set_fill_color(ctx, settings.upper_panel_background_color);
+	graphics_context_set_fill_color(ctx, settings.panel_background_color[0]);
 	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
 }
 
 void bottom_panel_update(Layer* layer, GContext* ctx) {
 	GRect bounds = layer_get_bounds(layer);
-	graphics_context_set_fill_color(ctx, settings.bottom_panel_background_color);
+	graphics_context_set_fill_color(ctx, settings.panel_background_color[1]);
 	graphics_fill_rect(ctx, bounds, 0, GCornerNone);
 }
 
