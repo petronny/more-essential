@@ -1,5 +1,9 @@
 #pragma once
 #include <pebble.h>
+#include "clock.h"
+#include "battery.h"
+#include "bluetooth.h"
+#include "panel.h"
 
 #define SETTINGS_KEY 1
 
@@ -37,3 +41,8 @@ void settings_theme_german();
 void settings_theme_italy();
 void settings_theme_russia();
 void settings_default_settings();
+void settings_load_settings();
+void settings_update_display();
+void settings_save_settings();
+void settings_inbox_received_handler(DictionaryIterator* iter, void* context);
+void settings_init();
