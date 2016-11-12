@@ -1,5 +1,7 @@
 #pragma once
 #include <pebble.h>
+#include "settings.h"
+#include "window.h"
 
 typedef struct Pin {
 	Layer* canvas_layer;

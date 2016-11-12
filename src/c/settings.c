@@ -149,7 +149,7 @@ void settings_inbox_received_handler(DictionaryIterator* iter, void* context) {
 		settings.bottom_panel_foreground_color = GColorFromHEX(bottom_panel_foreground_color->value->int32);
 	Tuple* theme = dict_find(iter, MESSAGE_KEY_theme);
 	if(theme)
-		settings.theme = (int)theme->value->uint8-'0';
+		settings.theme = atoi(theme->value->cstring);
 	switch(settings.theme) {
 		case 1:
 			settings_theme_default();
