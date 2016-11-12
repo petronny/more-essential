@@ -26,10 +26,11 @@
       "watchface": true
     },
     "messageKeys": [
-      "clock_background_color",
-      "clock_foreground_color",
+      "theme",
       "bluetooth_vibrate",
       "clock_hourly_vibrate",
+      "clock_background_color",
+      "clock_foreground_color",
       "battery_display",
       "battery_color_high",
       "battery_color_medium",

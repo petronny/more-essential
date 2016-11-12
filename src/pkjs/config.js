@@ -5,6 +5,46 @@ module.exports = [{
 	"type": "section",
 	"items": [{
 		"type": "heading",
+		"defaultValue": "General"
+	}, {
+		"type": "select",
+		"messageKey": "theme",
+		"defaultValue": "default",
+		"label": "Theme",
+		"options": [{
+			"label": "Custom",
+			"value": "0"
+		}, {
+			"label": "Default",
+			"value": "1"
+		}, {
+			"label": "France",
+			"value": "2"
+		}, {
+			"label": "German",
+			"value": "3"
+		}, {
+			"label": "Italy",
+			"value": "4"
+		}, {
+			"label": "Russia",
+			"value": "5"
+		}]
+	}, {
+		"type": "toggle",
+		"messageKey": "bluetooth_vibrate",
+		"label": "Vibrate when disconnected",
+		"defaultValue": true
+	}, {
+		"type": "toggle",
+		"messageKey": "clock_hourly_vibrate",
+		"label": "Vibrate hourly",
+		"defaultValue": true
+	}]
+}, {
+	"type": "section",
+	"items": [{
+		"type": "heading",
 		"defaultValue": "Clock"
 	}, {
 		"type": "color",
@@ -16,22 +56,6 @@ module.exports = [{
 		"messageKey": "clock_foreground_color",
 		"defaultValue": "0x000000",
 		"label": "Foreground color"
-	}]
-}, {
-	"type": "section",
-	"items": [{
-		"type": "heading",
-		"defaultValue": "Viberation"
-	}, {
-		"type": "toggle",
-		"messageKey": "bluetooth_vibrate",
-		"label": "Vibrate when disconnected",
-		"defaultValue": true
-	}, {
-		"type": "toggle",
-		"messageKey": "clock_hourly_vibrate",
-		"label": "Vibrate hourly",
-		"defaultValue": true
 	}]
 }, {
 	"type": "section",

@@ -53,7 +53,8 @@ static void battery_callback(BatteryChargeState state) {
 	// Record the new battery level
 	battery_level = state.charge_percent;
 	// Update meter
-	layer_mark_dirty(battery_layer);
+	if(settings.battery_display)
+		layer_mark_dirty(battery_layer);
 }
 
 static void battery_update(Layer* layer, GContext* ctx) {
@@ -209,24 +210,82 @@ static void panel_destroy() {
 }
 
 // Settings
-static void settings_default_settings() {
-	// Initialize the default settings
-	settings.clock_foreground_color = GColorBlack;
+
+static void settings_theme_default() {
 	settings.clock_background_color = GColorWhite;
-	settings.bluetooth_vibrate = true;
-	settings.clock_hourly_vibrate = true;
-	settings.battery_display = true;
+	settings.clock_foreground_color = GColorBlack;
 	settings.battery_color_high = GColorDarkGreen;
 	settings.battery_color_medium = GColorOrange;
 	settings.battery_color_low = GColorRed;
-	settings.bluetooth_display = true;
 	settings.bluetooth_color = GColorBlack;
 	settings.upper_panel_background_color = GColorBlue;
 	settings.upper_panel_foreground_color = GColorWhite;
-	settings.upper_panel_animations = true;
+	settings.bottom_panel_background_color = GColorBlue;
+	settings.bottom_panel_foreground_color = GColorWhite;
+}
+
+static void settings_theme_france() {
+	settings.clock_background_color = GColorWhite;
+	settings.clock_foreground_color = GColorBlack;
+	settings.battery_color_high = GColorDarkGreen;
+	settings.battery_color_medium = GColorOrange;
+	settings.battery_color_low = GColorRed;
+	settings.bluetooth_color = GColorBlack;
+	settings.upper_panel_background_color = GColorBlue;
+	settings.upper_panel_foreground_color = GColorWhite;
 	settings.bottom_panel_background_color = GColorRed;
 	settings.bottom_panel_foreground_color = GColorCyan;
+}
+
+static void settings_theme_german() {
+	settings.clock_background_color = GColorRed;
+	settings.clock_foreground_color = GColorCyan;
+	settings.battery_color_high = GColorDarkGreen;
+	settings.battery_color_medium = GColorOrange;
+	settings.battery_color_low = GColorRed;
+	settings.bluetooth_color = GColorBlack;
+	settings.upper_panel_background_color = GColorBlack;
+	settings.upper_panel_foreground_color = GColorWhite;
+	settings.bottom_panel_background_color = GColorFromHEX(0xFFAA00);
+	settings.bottom_panel_foreground_color = GColorFromHEX(0x0055FF);
+}
+
+static void settings_theme_italy() {
+	settings.clock_background_color = GColorWhite;
+	settings.clock_foreground_color = GColorBlack;
+	settings.battery_color_high = GColorDarkGreen;
+	settings.battery_color_medium = GColorOrange;
+	settings.battery_color_low = GColorRed;
+	settings.bluetooth_color = GColorBlack;
+	settings.upper_panel_background_color = GColorFromHEX(0x00AA00);
+	settings.upper_panel_foreground_color = GColorFromHEX(0xFF55FF);
+	settings.bottom_panel_background_color = GColorRed;
+	settings.bottom_panel_foreground_color = GColorCyan;
+}
+
+static void settings_theme_russia() {
+	settings.clock_background_color = GColorFromHEX(0x0000AA);
+	settings.clock_foreground_color = GColorFromHEX(0xFFFF55);
+	settings.battery_color_high = GColorDarkGreen;
+	settings.battery_color_medium = GColorOrange;
+	settings.battery_color_low = GColorRed;
+	settings.bluetooth_color = GColorBlack;
+	settings.upper_panel_background_color = GColorWhite;
+	settings.upper_panel_foreground_color = GColorBlack;
+	settings.bottom_panel_background_color = GColorRed;
+	settings.bottom_panel_foreground_color = GColorCyan;
+}
+
+static void settings_default_settings() {
+	// Initialize the default settings
+	settings.theme = 0;
+	settings.bluetooth_vibrate = true;
+	settings.clock_hourly_vibrate = true;
+	settings.battery_display = true;
+	settings.bluetooth_display = true;
+	settings.upper_panel_animations = true;
 	settings.bottom_panel_animations = true;
+	settings_theme_default();
 }
 
 static void settings_load_settings() {
@@ -299,6 +358,26 @@ static void settings_inbox_received_handler(DictionaryIterator* iter, void* cont
 	Tuple* bottom_panel_foreground_color = dict_find(iter, MESSAGE_KEY_bottom_panel_foreground_color);
 	if(bottom_panel_foreground_color)
 		settings.bottom_panel_foreground_color = GColorFromHEX(bottom_panel_foreground_color->value->int32);
+	Tuple* theme = dict_find(iter, MESSAGE_KEY_theme);
+	if(theme)
+		settings.theme = (int)theme->value->uint8-'0';
+	switch(settings.theme) {
+		case 1:
+			settings_theme_default();
+			break;
+		case 2:
+			settings_theme_france();
+			break;
+		case 3:
+			settings_theme_german();
+			break;
+		case 4:
+			settings_theme_italy();
+			break;
+		case 5:
+			settings_theme_russia();
+			break;
+	}
 	// Save the new settings to persistent storage
 	settings_save_settings();
 }

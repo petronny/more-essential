@@ -3,10 +3,11 @@
 #define SETTINGS_KEY 1
 
 typedef struct ClaySettings {
-	GColor clock_background_color;
-	GColor clock_foreground_color;
+	int theme;
 	bool bluetooth_vibrate;
 	bool clock_hourly_vibrate;
+	GColor clock_background_color;
+	GColor clock_foreground_color;
 	bool battery_display;
 	GColor battery_color_high;
 	GColor battery_color_medium;
