@@ -98,8 +98,8 @@ void settings_update_display() {
 	layer_mark_dirty(battery_layer);
 	layer_set_hidden(bluetooth_layer, !settings.bluetooth_display);
 	layer_mark_dirty(bluetooth_layer);
-	layer_mark_dirty(upper_panel_layer);
-	layer_mark_dirty(bottom_panel_layer);
+	for(int i=0;i<2;i++)
+		layer_mark_dirty(panel_layer[i]);
 }
 
 void settings_save_settings() {
