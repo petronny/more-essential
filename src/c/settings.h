@@ -1,3 +1,4 @@
+#pragma once
 #include <pebble.h>
 
 #define SETTINGS_KEY 1
@@ -29,3 +30,9 @@ typedef struct ClaySettings {
 } ClaySettings;
 
 static ClaySettings settings;
+
+void settings_theme_default();
+void settings_theme_france();
+void settings_theme_german();
+void settings_theme_italy();
+void settings_theme_russia();

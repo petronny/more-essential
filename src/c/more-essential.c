@@ -1,5 +1,4 @@
 #include <pebble.h>
-#include "more-essential.h"
 #include "settings.h"
 
 // Window
@@ -33,11 +32,15 @@ static void clock_load() {
 	layer_add_child(window_layer, text_layer_get_layer(clock_text_layer));
 }
 
+static void clock_tick_handler(struct tm* tick_time, TimeUnits units_changed) {
+	clock_update();
+}
+
 static void clock_init() {
 	// Make sure the time is displayed from the start
 	clock_update();
 	// Register with TickTimerService
-	tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+	tick_timer_service_subscribe(MINUTE_UNIT, clock_tick_handler);
 }
 
 static void clock_destroy() {
@@ -132,10 +135,10 @@ static void bluetooth_destroy() {
 	layer_destroy(bluetooth_layer);
 }
 
-// Icons
-static Layer* icon_canvas_layer;
+/*/ Pin
+static Layer* pin_canvas_layer;
 static GDrawCommandImage* s_command_image;
-static TextLayer* icon_text_layer;
+static TextLayer* pin_text_layer;
 
 static void update_proc(Layer* layer, GContext* ctx) {
 	// Place image in the center of the Window
@@ -152,31 +155,31 @@ static void update_proc(Layer* layer, GContext* ctx) {
 	}
 }
 
-static void icons_load() {
+static void pins_load() {
 	// Load the image and check it was succcessful
 	s_command_image = gdraw_command_image_create_with_resource(RESOURCE_ID_CALENDAR);
 	// Create canvas Layer and set up the update procedure
-	icon_canvas_layer = layer_create(GRect(0,0,window_bounds.size.w/3,window_bounds.size.h/3*5/8));
-	layer_set_update_proc(icon_canvas_layer, update_proc);
-	layer_add_child(window_layer, icon_canvas_layer);
-	GRect canvas_layer_bounds=layer_get_bounds(icon_canvas_layer);
-	icon_text_layer = text_layer_create(GRect(0, canvas_layer_bounds.size.h, canvas_layer_bounds.size.w,window_bounds.size.h/3-canvas_layer_bounds.size.h));
-	text_layer_set_background_color(icon_text_layer, GColorClear);
-	text_layer_set_text_color(icon_text_layer, GColorWhite);
-	text_layer_set_text(icon_text_layer, "43°");
-	text_layer_set_font(icon_text_layer, fonts_get_system_font(FONT_KEY_LECO_20_BOLD_NUMBERS));
-	text_layer_set_text_alignment(icon_text_layer, GTextAlignmentCenter);
-	layer_add_child(window_layer, text_layer_get_layer(icon_text_layer));
+	pin_canvas_layer = layer_create(GRect(0,0,window_bounds.size.w/3,window_bounds.size.h/3*5/8));
+	layer_set_update_proc(pin_canvas_layer, update_proc);
+	layer_add_child(window_layer, pin_canvas_layer);
+	GRect canvas_layer_bounds=layer_get_bounds(pin_canvas_layer);
+	pin_text_layer = text_layer_create(GRect(0, canvas_layer_bounds.size.h, canvas_layer_bounds.size.w,window_bounds.size.h/3-canvas_layer_bounds.size.h));
+	text_layer_set_background_color(pin_text_layer, GColorClear);
+	text_layer_set_text_color(pin_text_layer, GColorWhite);
+	text_layer_set_text(pin_text_layer, "43°");
+	text_layer_set_font(pin_text_layer, fonts_get_system_font(FONT_KEY_LECO_20_BOLD_NUMBERS));
+	text_layer_set_text_alignment(pin_text_layer, GTextAlignmentCenter);
+	layer_add_child(window_layer, text_layer_get_layer(pin_text_layer));
 }
 
-static void icons_destroy() {
+static void pins_destroy() {
 	// Destroy TextLayer
-	text_layer_destroy(icon_text_layer);
+	text_layer_destroy(pin_text_layer);
 	// Destroy canvas Layer
-	layer_destroy(icon_canvas_layer);
+	layer_destroy(pin_canvas_layer);
 	// Destroy the image
 	gdraw_command_image_destroy(s_command_image);
-}
+}*/
 
 // Panel
 static Layer* panel_layer[2];
@@ -211,72 +214,7 @@ static void panel_destroy() {
 
 // Settings
 
-static void settings_theme_default() {
-	settings.clock_background_color = GColorWhite;
-	settings.clock_foreground_color = GColorBlack;
-	settings.battery_color_high = GColorDarkGreen;
-	settings.battery_color_medium = GColorOrange;
-	settings.battery_color_low = GColorRed;
-	settings.bluetooth_color = GColorBlack;
-	settings.upper_panel_background_color = GColorBlue;
-	settings.upper_panel_foreground_color = GColorWhite;
-	settings.bottom_panel_background_color = GColorBlue;
-	settings.bottom_panel_foreground_color = GColorWhite;
-}
-
-static void settings_theme_france() {
-	settings.clock_background_color = GColorWhite;
-	settings.clock_foreground_color = GColorBlack;
-	settings.battery_color_high = GColorDarkGreen;
-	settings.battery_color_medium = GColorOrange;
-	settings.battery_color_low = GColorRed;
-	settings.bluetooth_color = GColorBlack;
-	settings.upper_panel_background_color = GColorBlue;
-	settings.upper_panel_foreground_color = GColorWhite;
-	settings.bottom_panel_background_color = GColorRed;
-	settings.bottom_panel_foreground_color = GColorCyan;
-}
-
-static void settings_theme_german() {
-	settings.clock_background_color = GColorRed;
-	settings.clock_foreground_color = GColorCyan;
-	settings.battery_color_high = GColorDarkGreen;
-	settings.battery_color_medium = GColorOrange;
-	settings.battery_color_low = GColorRed;
-	settings.bluetooth_color = GColorBlack;
-	settings.upper_panel_background_color = GColorBlack;
-	settings.upper_panel_foreground_color = GColorWhite;
-	settings.bottom_panel_background_color = GColorFromHEX(0xFFAA00);
-	settings.bottom_panel_foreground_color = GColorFromHEX(0x0055FF);
-}
-
-static void settings_theme_italy() {
-	settings.clock_background_color = GColorWhite;
-	settings.clock_foreground_color = GColorBlack;
-	settings.battery_color_high = GColorDarkGreen;
-	settings.battery_color_medium = GColorOrange;
-	settings.battery_color_low = GColorRed;
-	settings.bluetooth_color = GColorBlack;
-	settings.upper_panel_background_color = GColorFromHEX(0x00AA00);
-	settings.upper_panel_foreground_color = GColorFromHEX(0xFF55FF);
-	settings.bottom_panel_background_color = GColorRed;
-	settings.bottom_panel_foreground_color = GColorCyan;
-}
-
-static void settings_theme_russia() {
-	settings.clock_background_color = GColorFromHEX(0x0000AA);
-	settings.clock_foreground_color = GColorFromHEX(0xFFFF55);
-	settings.battery_color_high = GColorDarkGreen;
-	settings.battery_color_medium = GColorOrange;
-	settings.battery_color_low = GColorRed;
-	settings.bluetooth_color = GColorBlack;
-	settings.upper_panel_background_color = GColorWhite;
-	settings.upper_panel_foreground_color = GColorBlack;
-	settings.bottom_panel_background_color = GColorRed;
-	settings.bottom_panel_foreground_color = GColorCyan;
-}
-
-static void settings_default_settings() {
+void settings_default_settings() {
 	// Initialize the default settings
 	settings.theme = 0;
 	settings.bluetooth_vibrate = true;
@@ -392,10 +330,6 @@ static void settings_init() {
 // Public
 static Window* main_window;
 
-static void tick_handler(struct tm* tick_time, TimeUnits units_changed) {
-	clock_update();
-}
-
 static void main_window_load(Window* window) {
 	// Get information about the Window
 	window_layer = window_get_root_layer(window);
@@ -404,7 +338,7 @@ static void main_window_load(Window* window) {
 	battery_load();
 	bluetooth_load();
 	panel_load();
-//	icons_load();
+//	pins_load();
 }
 
 static void main_window_unload(Window* window) {
@@ -412,7 +346,7 @@ static void main_window_unload(Window* window) {
 	battery_destroy();
 	bluetooth_destroy();
 	panel_destroy();
-//	icons_destroy();
+//	pins_destroy();
 }
 
 static void init() {
