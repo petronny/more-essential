@@ -3,7 +3,8 @@
 #include "settings.h"
 #include "window.h"
 
-Layer* panel_layer[2];
+Layer* upper_panel_layer;
+Layer* bottom_panel_layer;
 
 void upper_panel_update(Layer* layer, GContext* ctx);
 void bottom_panel_update(Layer* layer, GContext* ctx);

@@ -13,17 +13,17 @@ void bottom_panel_update(Layer* layer, GContext* ctx) {
 }
 
 void panel_load() {
-	panel_layer[0] = layer_create(GRect(0,0,window_bounds.size.w, window_bounds.size.h/3));
-	panel_layer[1] = layer_create(GRect(0,window_bounds.size.h/3*2,window_bounds.size.w, window_bounds.size.h/3));
-	layer_set_update_proc(panel_layer[0], upper_panel_update);
-	layer_set_update_proc(panel_layer[1], bottom_panel_update);
-	for(int i=0; i<2; i++) {
-		layer_add_child(window_layer, panel_layer[i]);
-		layer_mark_dirty(panel_layer[i]);
-	}
+	upper_panel_layer = layer_create(GRect(0,0,window_bounds.size.w, window_bounds.size.h/3));
+	bottom_panel_layer = layer_create(GRect(0,window_bounds.size.h/3*2,window_bounds.size.w, window_bounds.size.h/3));
+	layer_set_update_proc(upper_panel_layer, upper_panel_update);
+	layer_set_update_proc(bottom_panel_layer, bottom_panel_update);
+	layer_add_child(window_layer, upper_panel_layer);
+	layer_add_child(window_layer, bottom_panel_layer);
+	layer_mark_dirty(upper_panel_layer);
+	layer_mark_dirty(bottom_panel_layer);
 }
 
 void panel_destroy() {
-	for(int i=0; i<2; i++)
-		layer_destroy(panel_layer[i]);
+	layer_destroy(upper_panel_layer);
+	layer_destroy(bottom_panel_layer);
 }
